@@ -1,0 +1,16 @@
+{
+  "name": "iTXTech Rpf",
+  "version": "1.0.0",
+  "api": 6,
+  "description": "iTX Technologies Reverse Proxy Framework",
+  "author": "iTX Technologies",
+  "main": "iTXTech\\Rpf\\Loader",
+  "order": 0,
+  "website": "https://github.com/iTXTech/Rpf",
+  "extensions": [
+    {
+      "name": "swoole",
+      "version": "4.2.0"
+    }
+  ]
+}
