@@ -53,9 +53,6 @@ class Handler{
 		$header = $request->header;
 		$header["host"] = $host . ":" . $port;
 		$client = new Client($host, $port, $this->ssl);
-		$client->set([
-			"package_max_length" => 1024 * 1024 * 32//照样没用，返回的包还是不完整
-		]);
 		$client->setHeaders($header);
 		if($request->server["request_method"] === "GET"){
 			$client->get($uri);
@@ -70,7 +67,15 @@ class Handler{
 		foreach($client->headers as $k => $header){
 			$response->header($k, $header);
 		}
-		$response->end($client->body);
+
+		$len = 0;
+		while($len < strlen($client->body)){
+			$l = $len + 1024 * 1024;
+			$response->write(substr($client->body, $len, $l));
+			$len = $l;
+		}
+
+		$response->end();
 
 		return $client->body;
 	}

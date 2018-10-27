@@ -39,7 +39,8 @@ $launcher = (new Launcher())
 		}
 
 		public function complete(\Swoole\Http\Request $request, \Swoole\Http\Response $response, string $body){
-			var_dump($body);
+			var_dump($response->header);
+			//file_put_contents("1.txt", $body);
 		}
 	});
 
