@@ -60,7 +60,7 @@ class Handler{
 			$client->post($uri, $request->post);
 		}
 
-		$this->response($request, $response, $client->body);
+		$this->response($request, $response, $client);
 
 		unset($client->headers["content-length"],
 			$client->headers["content-encoding"]);
@@ -81,7 +81,7 @@ class Handler{
 		return $client->body;
 	}
 
-	public function response(Request $request, Response $response, string &$body){
+	public function response(Request $request, Response $response, Client $client){
 	}
 
 	public function complete(Request $request, Response $response, string $body){

@@ -25,6 +25,7 @@ require_once "load_env.php";
 use iTXTech\SimpleFramework\Console\Logger;
 use iTXTech\Rpf\{Handler, Launcher};
 use Swoole\Http\{Request, Response};
+use Swoole\Coroutine\Http\Client;
 
 Logger::info("Constructing");
 $launcher = (new Launcher())
@@ -44,9 +45,9 @@ $launcher = (new Launcher())
 				" len: " . strlen($body));
 		}
 
-		public function response(Request $request, Response $response, string &$body){
+		public function response(Request $request, Response $response, Client $client){
 			$response->header["X-Powered-By"] = "iTXTech Rpf";
-			$body .= "\n<!-- Powered by iTXTech Rpf --!>";
+			$client->body .= "\n<!-- Powered by iTXTech Rpf --!>";
 		}
 	});
 
