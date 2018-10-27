@@ -27,20 +27,18 @@ use iTXTech\Rpf\{Handler, Launcher};
 
 Logger::info("Constructing");
 $launcher = (new Launcher())
-	->listen("127.0.0.1", 2333)
+	->listen("127.0.0.1", 80)
 	->handler(new class() extends Handler{
 		public function ssl(bool $ssl){
 			$this->ssl = true;
 		}
 
 		public function request(\Swoole\Http\Request $request){
-			$request->header["host"] = "www.qq.com";
 			var_dump($request->header);
 		}
 
 		public function complete(\Swoole\Http\Request $request, \Swoole\Http\Response $response, string $body){
 			var_dump($response->header);
-			//file_put_contents("1.txt", $body);
 		}
 	});
 

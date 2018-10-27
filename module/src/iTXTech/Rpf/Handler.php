@@ -61,8 +61,7 @@ class Handler{
 		}
 
 		unset($client->headers["content-length"],
-			$client->headers["content-encoding"],
-			$client->headers["vary"]);
+			$client->headers["content-encoding"]);
 
 		foreach($client->headers as $k => $header){
 			$response->header($k, $header);
