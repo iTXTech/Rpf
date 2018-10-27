@@ -40,7 +40,7 @@ class Loader extends Module{
 		}
 	}
 
-	public static function getInstance() : ?Loader{
+	public static function getInstance(): ?Loader{
 		return self::$instance;
 	}
 

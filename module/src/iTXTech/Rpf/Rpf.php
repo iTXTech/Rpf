@@ -46,12 +46,13 @@ class Rpf{
 	public $ssl;
 	public $verify;
 
-	public function __construct(string $addr, int $port, ?Handler $handler, array $swooleOptions, bool $ssl,
-	                            bool $verify, string $uniqueVerification){
+	public function __construct(string $addr, int $port, ?Handler $handler,
+	                            array $swooleOptions, bool $ssl,
+	                            bool $verify, string $uuid){
 		$this->addr = $addr;
 		$this->port = $port;
 		$this->handler = $handler ?? new Handler();
-		$this->handler->init($ssl, $verify, $uniqueVerification);
+		$this->handler->init($ssl, $verify, $uuid);
 		$this->swooleOptions = $swooleOptions;
 		$this->ssl = $ssl;
 		$this->verify = $verify;
@@ -64,7 +65,7 @@ class Rpf{
 		$handler = $this->handler;
 		$swOpts = $this->swooleOptions;
 		$ssl = $this->ssl;
-		$this->proc = new Process(function() use ($addr, $port, $handler, $swOpts, $ssl){
+		$this->proc = new Process(function(Process $process) use ($addr, $port, $handler, $swOpts, $ssl){
 			$server = new Server($addr, $port, SWOOLE_PROCESS, $ssl ? (SWOOLE_SOCK_TCP | SWOOLE_SSL) : SWOOLE_SOCK_TCP);
 			$server->set($swOpts);
 

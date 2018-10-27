@@ -51,7 +51,7 @@ function load(Launcher $launcher){
 }
 
 class DefaultHandler extends Handler{
-	public function request(Request $request, Response $response) : bool {
+	public function request(Request $request, Response $response): bool{
 		if(parent::request($request, $response)){
 			Logger::info("Got request from " . $request->server["remote_addr"] . " to " .
 				$request->header["host"] . $request->server["request_uri"]);

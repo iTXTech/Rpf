@@ -29,19 +29,19 @@ use Swoole\Http\Response;
 class Handler{
 	protected $ssl = false;
 	protected $verify = false;
-	protected $uniqueVerification;
+	protected $uuid;
 
 	/**
 	 * Initialize the Handler
 	 *
 	 * @param bool $ssl
 	 * @param bool $verify
-	 * @param string $uniqueVerification
+	 * @param string $uuid
 	 */
-	public function init(bool $ssl, bool $verify, string $uniqueVerification){
+	public function init(bool $ssl, bool $verify, string $uuid){
 		$this->ssl = $ssl;
 		$this->verify = $verify;
-		$this->uniqueVerification = $uniqueVerification;
+		$this->uuid = $uuid;
 	}
 
 	/**
@@ -55,7 +55,7 @@ class Handler{
 	public function request(Request $request, Response $response) : bool {
 		if($this->verify){
 			if(isset($request->header[strtolower(Rpf::EXTRA_HEADER)]) and
-				$request->header[strtolower(Rpf::EXTRA_HEADER)] === $this->uniqueVerification){
+				$request->header[strtolower(Rpf::EXTRA_HEADER)] === $this->uuid){
 				$this->invalid($request, $response, Rpf::INVALID_REQUEST_LOOP);
 				return false;
 			}
@@ -110,7 +110,7 @@ class Handler{
 		$header = $request->header;
 		$header["host"] = $host . ":" . $port;
 		if($this->verify){
-			$header[Rpf::EXTRA_HEADER] = $this->uniqueVerification;
+			$header[Rpf::EXTRA_HEADER] = $this->uuid;
 		}
 		$client = new Client($host, $port, $this->ssl);
 		$client->setHeaders($header);

@@ -33,7 +33,7 @@ class Launcher{
 	private $handler;
 	private $ssl = false;
 	private $verify = false;
-	private $uniqueVerification;
+	private $uuid;
 
 	public function __construct(){
 	}
@@ -93,12 +93,12 @@ class Launcher{
 	 * whether the Request is being sent back to Rpf.
 	 *
 	 * @param bool $verify
-	 * @param string $uniqueVerification
+	 * @param string $uuid
 	 * @return $this
 	 */
-	public function verify(bool $verify, string $uniqueVerification = null){
+	public function verify(bool $verify, string $uuid = null){
 		$this->verify = $verify;
-		$this->uniqueVerification = $uniqueVerification ?? self::generateUniqueVerification();
+		$this->uuid = $uuid ?? self::generateUuid();
 		return $this;
 	}
 
@@ -120,7 +120,7 @@ class Launcher{
 	 */
 	public function build(): Rpf{
 		return new Rpf($this->address, $this->port, $this->handler, $this->swooleOptions,
-			$this->ssl, $this->verify, $this->uniqueVerification);
+			$this->ssl, $this->verify, $this->uuid);
 	}
 
 	/**
@@ -134,7 +134,7 @@ class Launcher{
 		return $rpf;
 	}
 
-	public static function generateUniqueVerification(): string {
+	public static function generateUuid(): string{
 		return md5("iTXTech Rpf " . microtime(true));
 	}
 
