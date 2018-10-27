@@ -23,7 +23,8 @@
 require_once "../sf/autoload.php";
 
 use iTXTech\SimpleFramework\Console\Logger;
-use \iTXTech\SimpleFramework\Module\ModuleManager;
+use iTXTech\SimpleFramework\Module\ModuleManager;
+use iTXTech\Rpf\Launcher;
 
 Initializer::initTerminal(true);
 
@@ -36,4 +37,15 @@ try{
 	$moduleManager->loadModules();
 } catch(Throwable $e){
 	Logger::logException($e);
+}
+
+class Loader{
+	public static function load(Launcher $launcher){
+		Logger::info("Launching");
+		$time = microtime(true);
+		$rpf = $launcher->launch();
+		Logger::info("Launched " . round((microtime(true) - $time) * 1000, 2) . " ms");
+
+		while(true);
+	}
 }

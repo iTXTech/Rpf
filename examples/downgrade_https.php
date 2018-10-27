@@ -24,6 +24,7 @@ require_once "load_env.php";
 
 use iTXTech\SimpleFramework\Console\Logger;
 use iTXTech\Rpf\{Handler, Launcher};
+use Swoole\Http\{Request, Response};
 
 Logger::info("Constructing");
 $launcher = (new Launcher())
@@ -33,18 +34,20 @@ $launcher = (new Launcher())
 			$this->ssl = true;
 		}
 
-		public function request(\Swoole\Http\Request $request){
-			var_dump($request->header);
+		public function request(Request $request){
+			Logger::info("Got request from " . $request->server["remote_addr"] . " to " .
+				$request->header["host"] . $request->server["request_uri"]);
 		}
 
-		public function complete(\Swoole\Http\Request $request, \Swoole\Http\Response $response, string $body){
-			var_dump($response->header);
+		public function complete(Request $request, Response $response, string $body){
+			Logger::info("Got response from " . $request->header["host"] . $request->server["request_uri"] .
+				" len: " . strlen($body));
+		}
+
+		public function response(Request $request, Response $response, string &$body){
+			$response->header["X-Powered-By"] = "iTXTech Rpf";
+			$body .= "\n<!-- Powered by iTXTech Rpf --!>";
 		}
 	});
 
-Logger::info("Launching");
-$time = microtime(true);
-$rpf = $launcher->launch();
-Logger::info("Launched " . round((microtime(true) - $time) * 1000, 2) . " ms");
-
-while(true);
+Loader::load($launcher);

@@ -4,6 +4,10 @@
 
 An extensible Reverse Proxy Framework for [SimpleFramework 2.1](https://github.com/iTXTech/SimpleFramework) and [Swoole 4.2](https://github.com/swoole/swoole-src).
 
+## Examples
+
+See files in [examples](https://github.com/iTXTech/Rpf/blob/master/examples) folder.
+
 ## License
 
     Copyright (C) 2018 iTX Technologies
@@ -19,4 +23,3 @@ An extensible Reverse Proxy Framework for [SimpleFramework 2.1](https://github.c
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-    
