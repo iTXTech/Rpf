@@ -66,7 +66,7 @@ class Rpf{
 			$server->on("start", function(Server $server){
 				Logger::info(TextFormat::GREEN . "iTXTech Rpf is listening on " . $server->host . ":" . $server->port);
 			});
-			$server->on("request", function(Request $request, Response $response) use ($server, $handler, $ssl){
+			$server->on("request", function(Request $request, Response $response) use ($server, $handler){
 				$handler->request($request);
 				$body = $handler->forward($request, $response);
 				$handler->complete($request, $response, $body);
