@@ -30,27 +30,46 @@ use Swoole\Http\Server;
 use Swoole\Process;
 
 class Rpf{
-	public const USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.92 Safari/537.36";
-
 	/** @var Process */
 	private $proc;
 
-	public function __construct(string $addr, int $port, ?Handler $i, array $swSet, bool $ssl){
+	private $addr;
+	private $port;
+	/** @var Handler */
+	private $handler;
+	private $swooleOptions;
+	private $ssl;
+
+	public function __construct(string $addr, int $port, ?Handler $handler, array $swooleOptions, bool $ssl){
 		Loader::getInstance()->addInstance($this);
 
-		$i = $i ?? new Handler();
-		$i->ssl($ssl);
-		$this->proc = new Process(function() use ($addr, $port, $i, $swSet, $ssl){
+		$handler = $handler ?? new Handler();
+		$handler->ssl($ssl);
+
+		$this->addr = $addr;
+		$this->port = $port;
+		$this->handler = $handler;
+		$this->swooleOptions = $swooleOptions;
+		$this->ssl = $ssl;
+	}
+
+	public function launch(){
+		$addr = $this->addr;
+		$port = $this->port;
+		$handler = $this->handler;
+		$swOpts = $this->swooleOptions;
+		$ssl = $this->ssl;
+		$this->proc = new Process(function() use ($addr, $port, $handler, $swOpts, $ssl){
 			$server = new Server($addr, $port, SWOOLE_PROCESS, $ssl ? (SWOOLE_SOCK_TCP | SWOOLE_SSL) : SWOOLE_SOCK_TCP);
-			$server->set($swSet);
+			$server->set($swOpts);
 
 			$server->on("start", function(Server $server){
 				Logger::info(TextFormat::GREEN . "iTXTech Rpf is listening on " . $server->host . ":" . $server->port);
 			});
-			$server->on("request", function(Request $request, Response $response) use ($server, $i, $ssl){
-				$i->request($request);
-				$body = $i->forward($request, $response);
-				$i->complete($request, $response, $body);
+			$server->on("request", function(Request $request, Response $response) use ($server, $handler, $ssl){
+				$handler->request($request);
+				$body = $handler->forward($request, $response);
+				$handler->complete($request, $response, $body);
 			});
 
 			$server->start();

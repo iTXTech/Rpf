@@ -23,7 +23,7 @@
 namespace iTXTech\Rpf;
 
 class Launcher{
-	private $swSet = [
+	private $swooleOptions = [
 		"worker_num" => 8
 	];
 
@@ -48,19 +48,30 @@ class Launcher{
 	}
 
 	public function workers(int $n){
-		$this->swSet["worker_num"] = $n;
+		$this->swooleOptions["worker_num"] = $n;
 		return $this;
 	}
 
 	public function ssl(string $cert, string $key){
 		$this->ssl = true;
-		$this->swSet["ssl_cert_file"] = $cert;
-		$this->swSet["ssl_key_file"] = $key;
+		$this->swooleOptions["ssl_cert_file"] = $cert;
+		$this->swooleOptions["ssl_key_file"] = $key;
 		return $this;
 	}
 
+	public function swOpts(array $opts){
+		$this->swooleOptions = array_merge($this->swooleOptions, $opts);
+		return $this;
+	}
+
+	public function build() : Rpf{
+		return new Rpf($this->address, $this->port, $this->handler, $this->swooleOptions, $this->ssl);
+	}
+
 	public function launch() : Rpf{
-		return new Rpf($this->address, $this->port, $this->handler, $this->swSet, $this->ssl);
+		$rpf = $this->build();
+		$rpf->launch();
+		return $rpf;
 	}
 
 }
