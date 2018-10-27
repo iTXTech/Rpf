@@ -28,23 +28,55 @@ use Swoole\Http\Response;
 
 class Handler{
 	protected $ssl = false;
+	protected $verify = false;
+	protected $uniqueVerification;
 
 	/**
-	 * Set SSL enabled or not
-	 * You can pretend SSL is enabled when downgrading HTTPS to HTTP
+	 * Initialize the Handler
 	 *
 	 * @param bool $ssl
+	 * @param bool $verify
+	 * @param string $uniqueVerification
 	 */
-	public function ssl(bool $ssl){
+	public function init(bool $ssl, bool $verify, string $uniqueVerification){
 		$this->ssl = $ssl;
+		$this->verify = $verify;
+		$this->uniqueVerification = $uniqueVerification;
 	}
 
 	/**
 	 * Modify HTTP Request before sending to upstream server
+	 * Return false to interrupt request forwarding
 	 *
 	 * @param Request $request
+	 * @param Response $response
+	 * @return bool
 	 */
-	public function request(Request $request){
+	public function request(Request $request, Response $response) : bool {
+		if($this->verify){
+			if(isset($request->header[strtolower(Rpf::EXTRA_HEADER)]) and
+				$request->header[strtolower(Rpf::EXTRA_HEADER)] === $this->uniqueVerification){
+				$this->invalid($request, $response, Rpf::INVALID_REQUEST_LOOP);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Called when HTTP Request is invalid
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 * @param int $reason
+	 */
+	public function invalid(Request $request, Response $response, int $reason){
+		switch($reason){
+			case Rpf::INVALID_REQUEST_LOOP:
+				$response->header["Content-Type"] = "text/plain";
+				$response->end("Invalid request.");
+				break;
+		}
 	}
 
 	/**
@@ -77,6 +109,9 @@ class Handler{
 
 		$header = $request->header;
 		$header["host"] = $host . ":" . $port;
+		if($this->verify){
+			$header[Rpf::EXTRA_HEADER] = $this->uniqueVerification;
+		}
 		$client = new Client($host, $port, $this->ssl);
 		$client->setHeaders($header);
 		if($request->server["request_method"] === "GET"){
@@ -87,11 +122,13 @@ class Handler{
 
 		$this->response($request, $response, $client);
 
-		unset($client->headers["content-length"],
-			$client->headers["content-encoding"]);
+		if($client->headers !== null){
+			unset($client->headers["content-length"],
+				$client->headers["content-encoding"]);
 
-		foreach($client->headers as $k => $header){
-			$response->header($k, $header);
+			foreach($client->headers as $k => $header){
+				$response->header($k, $header);
+			}
 		}
 
 		$len = 0;

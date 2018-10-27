@@ -32,6 +32,8 @@ class Launcher{
 	/** @var Handler */
 	private $handler;
 	private $ssl = false;
+	private $verify = false;
+	private $uniqueVerification;
 
 	public function __construct(){
 	}
@@ -86,6 +88,21 @@ class Launcher{
 	}
 
 	/**
+	 * Verify HTTP Request or not
+	 * Enable this feature will add an extra header to check
+	 * whether the Request is being sent back to Rpf.
+	 *
+	 * @param bool $verify
+	 * @param string $uniqueVerification
+	 * @return $this
+	 */
+	public function verify(bool $verify, string $uniqueVerification = null){
+		$this->verify = $verify;
+		$this->uniqueVerification = $uniqueVerification ?? self::generateUniqueVerification();
+		return $this;
+	}
+
+	/**
 	 * Set extra swoole options
 	 *
 	 * @param array $opts
@@ -102,7 +119,8 @@ class Launcher{
 	 * @return Rpf
 	 */
 	public function build(): Rpf{
-		return new Rpf($this->address, $this->port, $this->handler, $this->swooleOptions, $this->ssl);
+		return new Rpf($this->address, $this->port, $this->handler, $this->swooleOptions,
+			$this->ssl, $this->verify, $this->uniqueVerification);
 	}
 
 	/**
@@ -114,6 +132,10 @@ class Launcher{
 		$rpf = $this->build();
 		$rpf->launch();
 		return $rpf;
+	}
+
+	public static function generateUniqueVerification(): string {
+		return md5("iTXTech Rpf " . microtime(true));
 	}
 
 }

@@ -24,32 +24,16 @@
  * cert.crt and private.key must exist
  */
 
-require_once "load_env.php";
+require_once "env.php";
 
 use iTXTech\SimpleFramework\Console\Logger;
-use iTXTech\Rpf\{Handler, Launcher};
-use Swoole\Http\{Request, Response};
-use Swoole\Coroutine\Http\Client;
+use iTXTech\Rpf\Launcher;
 
 Logger::info("Constructing");
 $launcher = (new Launcher())
 	->listen("127.0.0.1", 443)
 	->ssl("cert.crt", "private.key")
-	->handler(new class() extends Handler{
-		public function request(Request $request){
-			Logger::info("Got request from " . $request->server["remote_addr"] . " to " .
-				$request->header["host"] . $request->server["request_uri"]);
-		}
-
-		public function complete(Request $request, Response $response, string $body){
-			Logger::info("Got response from " . $request->header["host"] . $request->server["request_uri"] .
-				" len: " . strlen($body));
-		}
-
-		public function response(Request $request, Response $response, Client $client){
-			$response->header["X-Powered-By"] = "iTXTech Rpf";
-			$client->body .= "\n<!-- Powered by iTXTech Rpf --!>";
-		}
-	});
+	->verify(true)
+	->handler(new DefaultHandler());
 
 load($launcher);

@@ -30,23 +30,31 @@ use Swoole\Http\Server;
 use Swoole\Process;
 
 class Rpf{
+	public const EXTRA_HEADER = "rpf-request-verification";
+
+	public const INVALID_REQUEST_LOOP = 0;
+
 	/** @var Process */
 	private $proc;
 
-	private $addr;
-	private $port;
 	/** @var Handler */
 	private $handler;
-	private $swooleOptions;
-	private $ssl;
 
-	public function __construct(string $addr, int $port, ?Handler $handler, array $swooleOptions, bool $ssl){
+	public $addr;
+	public $port;
+	public $swooleOptions;
+	public $ssl;
+	public $verify;
+
+	public function __construct(string $addr, int $port, ?Handler $handler, array $swooleOptions, bool $ssl,
+	                            bool $verify, string $uniqueVerification){
 		$this->addr = $addr;
 		$this->port = $port;
 		$this->handler = $handler ?? new Handler();
-		$this->handler->ssl($ssl);
+		$this->handler->init($ssl, $verify, $uniqueVerification);
 		$this->swooleOptions = $swooleOptions;
 		$this->ssl = $ssl;
+		$this->verify = $verify;
 		Loader::getInstance()->addInstance($this);
 	}
 
@@ -64,9 +72,9 @@ class Rpf{
 				Logger::info(TextFormat::GREEN . "iTXTech Rpf is listening on " . $server->host . ":" . $server->port);
 			});
 			$server->on("request", function(Request $request, Response $response) use ($server, $handler){
-				$handler->request($request);
-				$body = $handler->forward($request, $response);
-				$handler->complete($request, $response, $body);
+				if($handler->request($request, $response)){
+					$handler->complete($request, $response, $handler->forward($request, $response));
+				}
 			});
 
 			$server->start();
