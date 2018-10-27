@@ -36,22 +36,48 @@ class Launcher{
 	public function __construct(){
 	}
 
+	/**
+	 * Set which address and port to listen on
+	 *
+	 * @param string $address
+	 * @param int $port
+	 * @return $this
+	 */
 	public function listen(string $address, int $port){
 		$this->address = $address;
 		$this->port = $port;
 		return $this;
 	}
 
-	public function handler(Handler $interceptor){
-		$this->handler = $interceptor;
+	/**
+	 * Set a custom Handler
+	 *
+	 * @param Handler $handler
+	 * @return $this
+	 */
+	public function handler(Handler $handler){
+		$this->handler = $handler;
 		return $this;
 	}
 
+	/**
+	 * Set swoole worker num
+	 *
+	 * @param int $n
+	 * @return $this
+	 */
 	public function workers(int $n){
 		$this->swooleOptions["worker_num"] = $n;
 		return $this;
 	}
 
+	/**
+	 * Set SSL Certificate and Private Key
+	 *
+	 * @param string $cert
+	 * @param string $key
+	 * @return $this
+	 */
 	public function ssl(string $cert, string $key){
 		$this->ssl = true;
 		$this->swooleOptions["ssl_cert_file"] = $cert;
@@ -59,16 +85,32 @@ class Launcher{
 		return $this;
 	}
 
+	/**
+	 * Set extra swoole options
+	 *
+	 * @param array $opts
+	 * @return $this
+	 */
 	public function swOpts(array $opts){
 		$this->swooleOptions = array_merge($this->swooleOptions, $opts);
 		return $this;
 	}
 
-	public function build() : Rpf{
+	/**
+	 * Build a Rpf instance
+	 *
+	 * @return Rpf
+	 */
+	public function build(): Rpf{
 		return new Rpf($this->address, $this->port, $this->handler, $this->swooleOptions, $this->ssl);
 	}
 
-	public function launch() : Rpf{
+	/**
+	 * Build and launch a Rpf instance
+	 *
+	 * @return Rpf
+	 */
+	public function launch(): Rpf{
 		$rpf = $this->build();
 		$rpf->launch();
 		return $rpf;

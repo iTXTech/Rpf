@@ -41,16 +41,13 @@ class Rpf{
 	private $ssl;
 
 	public function __construct(string $addr, int $port, ?Handler $handler, array $swooleOptions, bool $ssl){
-		Loader::getInstance()->addInstance($this);
-
-		$handler = $handler ?? new Handler();
-		$handler->ssl($ssl);
-
 		$this->addr = $addr;
 		$this->port = $port;
-		$this->handler = $handler;
+		$this->handler = $handler ?? new Handler();
+		$this->handler->ssl($ssl);
 		$this->swooleOptions = $swooleOptions;
 		$this->ssl = $ssl;
+		Loader::getInstance()->addInstance($this);
 	}
 
 	public function launch(){

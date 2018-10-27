@@ -1,4 +1,5 @@
 <?php
+
 /*
  *
  * iTXTech Rpf
@@ -51,4 +52,4 @@ $launcher = (new Launcher())
 		}
 	});
 
-Loader::load($launcher);
+load($launcher);

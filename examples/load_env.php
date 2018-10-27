@@ -28,24 +28,22 @@ use iTXTech\Rpf\Launcher;
 
 Initializer::initTerminal(true);
 
-Logger::info("iTXTech Rpf Test Framework: " . basename($argv[0],".php"));
+Logger::info("iTXTech Rpf Test Framework: " . basename($argv[0], ".php"));
 Logger::info("Loading iTXTech Rpf");
 
 global $classLoader;
 try{
 	$moduleManager = new ModuleManager($classLoader, __DIR__ . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR, __DIR__ . "data");
 	$moduleManager->loadModules();
-} catch(Throwable $e){
+}catch(Throwable $e){
 	Logger::logException($e);
 }
 
-class Loader{
-	public static function load(Launcher $launcher){
-		Logger::info("Launching");
-		$time = microtime(true);
-		$rpf = $launcher->launch();
-		Logger::info("Launched " . round((microtime(true) - $time) * 1000, 2) . " ms");
+function load(Launcher $launcher){
+	Logger::info("Launching");
+	$time = microtime(true);
+	$launcher->launch();
+	Logger::info("Launched " . round((microtime(true) - $time) * 1000, 2) . " ms");
 
-		while(true);
-	}
+	while(true) ;
 }

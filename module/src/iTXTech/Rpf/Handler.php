@@ -29,19 +29,44 @@ use Swoole\Http\Response;
 class Handler{
 	protected $ssl = false;
 
+	/**
+	 * Set SSL enabled or not
+	 * You can pretend SSL is enabled when downgrading HTTPS to HTTP
+	 *
+	 * @param bool $ssl
+	 */
 	public function ssl(bool $ssl){
 		$this->ssl = $ssl;
 	}
 
+	/**
+	 * Modify HTTP Request before sending to upstream server
+	 *
+	 * @param Request $request
+	 */
 	public function request(Request $request){
-		//You can modify request here
 	}
 
-	public function resolve(string $host) : string {
+	/**
+	 * Resolve host to IP address
+	 * Default is to be resolved by swoole
+	 *
+	 * @param string $host
+	 * @return string
+	 */
+	public function resolve(string $host): string{
 		return $host;
 	}
 
-	public function forward(Request $request, Response $response): string {
+	/**
+	 * Forward HTTP Request to upstream server
+	 * Do not override this method before you know how it works
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 * @return string
+	 */
+	public function forward(Request $request, Response $response): string{
 		$uri = $request->server["request_uri"];
 		if(isset($request->server["query_string"])){
 			$uri .= "?" . $request->server["query_string"];
@@ -56,7 +81,7 @@ class Handler{
 		$client->setHeaders($header);
 		if($request->server["request_method"] === "GET"){
 			$client->get($uri);
-		} elseif ($request->server["request_method"] === "POST"){
+		}elseif($request->server["request_method"] === "POST"){
 			$client->post($uri, $request->post);
 		}
 
@@ -81,10 +106,23 @@ class Handler{
 		return $client->body;
 	}
 
+	/**
+	 * Modify HTTP Response before sending to client
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 * @param Client $client
+	 */
 	public function response(Request $request, Response $response, Client $client){
 	}
 
+	/**
+	 * Analyze/Record HTTP Session after it has completed
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 * @param string $body
+	 */
 	public function complete(Request $request, Response $response, string $body){
-
 	}
 }
