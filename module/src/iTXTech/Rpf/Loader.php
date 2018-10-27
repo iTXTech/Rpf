@@ -25,9 +25,30 @@ namespace iTXTech\Rpf;
 use iTXTech\SimpleFramework\Module\Module;
 
 class Loader extends Module{
+	/** @var Loader */
+	private static $instance;
+	/** @var Rpf[] */
+	private $instances = [];
+
 	public function load(){
+		self::$instance = $this;
 	}
 
 	public function unload(){
+		foreach($this->instances as $instance){
+			$instance->shutdown();
+		}
+	}
+
+	public static function getInstance() : ?Loader{
+		return self::$instance;
+	}
+
+	public function addInstance(Rpf $rpf){
+		$this->instances[spl_object_hash($rpf)] = $rpf;
+	}
+
+	public function removeInstance(Rpf $rpf){
+		unset($this->instances[spl_object_hash($rpf)]);
 	}
 }

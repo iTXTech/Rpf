@@ -23,6 +23,7 @@
 require_once "../sf/autoload.php";
 
 use iTXTech\SimpleFramework\Console\Logger;
+use \iTXTech\SimpleFramework\Module\ModuleManager;
 
 Initializer::initTerminal(true);
 
@@ -31,7 +32,7 @@ Logger::info("Loading iTXTech Rpf");
 
 global $classLoader;
 try{
-	$moduleManager = new \iTXTech\SimpleFramework\Module\ModuleManager($classLoader, __DIR__ . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR, __DIR__ . "data");
+	$moduleManager = new ModuleManager($classLoader, __DIR__ . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR, __DIR__ . "data");
 	$moduleManager->loadModules();
 } catch(Throwable $e){
 	Logger::logException($e);

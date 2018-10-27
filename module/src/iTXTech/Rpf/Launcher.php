@@ -23,13 +23,15 @@
 namespace iTXTech\Rpf;
 
 class Launcher{
+	private $swSet = [
+		"worker_num" => 8
+	];
 
 	private $address;
 	private $port;
-	/** @var Interceptor */
-	private $interceptor;
-	/** @var Resolver */
-	private $resolver;
+	/** @var Handler */
+	private $handler;
+	private $ssl = false;
 
 	public function __construct(){
 	}
@@ -40,18 +42,25 @@ class Launcher{
 		return $this;
 	}
 
-	public function interceptor(Interceptor $interceptor){
-		$this->interceptor = $interceptor;
+	public function handler(Handler $interceptor){
+		$this->handler = $interceptor;
 		return $this;
 	}
 
-	public function resolver(Resolver $resolver){
-		$this->resolver = $resolver;
+	public function workers(int $n){
+		$this->swSet["worker_num"] = $n;
+		return $this;
+	}
+
+	public function ssl(string $cert, string $key){
+		$this->ssl = true;
+		$this->swSet["ssl_cert_file"] = $cert;
+		$this->swSet["ssl_key_file"] = $key;
 		return $this;
 	}
 
 	public function launch() : Rpf{
-		return new Rpf();
+		return new Rpf($this->address, $this->port, $this->handler, $this->swSet, $this->ssl);
 	}
 
 }

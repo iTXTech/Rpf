@@ -23,19 +23,29 @@
 require_once "load_env.php";
 
 use iTXTech\SimpleFramework\Console\Logger;
-use iTXTech\Rpf\{Interceptor, Resolver, Launcher};
+use iTXTech\Rpf\{Handler, Launcher};
 
 Logger::info("Constructing");
 $launcher = (new Launcher())
 	->listen("127.0.0.1", 2333)
-	->interceptor(new class() extends Interceptor{
+	->handler(new class() extends Handler{
+		public function ssl(bool $ssl){
+			$this->ssl = true;
+		}
 
-	})
-	->resolver(new class() extends Resolver{
+		public function request(\Swoole\Http\Request $request){
+			$request->header["host"] = "www.qq.com";
+			var_dump($request->header);
+		}
 
+		public function complete(\Swoole\Http\Request $request, \Swoole\Http\Response $response, string $body){
+			var_dump($body);
+		}
 	});
 
 Logger::info("Launching");
 $time = microtime(true);
 $rpf = $launcher->launch();
 Logger::info("Launched " . round((microtime(true) - $time) * 1000, 2) . " ms");
+
+while(true);
