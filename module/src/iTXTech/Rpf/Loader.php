@@ -22,6 +22,8 @@
 
 namespace iTXTech\Rpf;
 
+use iTXTech\SimpleFramework\Console\Logger;
+use iTXTech\SimpleFramework\Console\SwooleLoggerHandler;
 use iTXTech\SimpleFramework\Module\Module;
 
 class Loader extends Module{
@@ -32,12 +34,15 @@ class Loader extends Module{
 
 	public function load(){
 		self::$instance = $this;
+		SwooleLoggerHandler::init();
+		Logger::setLoggerHandler(SwooleLoggerHandler::class);
 	}
 
 	public function unload(){
 		foreach($this->instances as $instance){
 			$instance->shutdown();
 		}
+		SwooleLoggerHandler::shutdown();
 	}
 
 	public static function getInstance(): ?Loader{
