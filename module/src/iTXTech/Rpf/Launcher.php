@@ -27,15 +27,15 @@ class Launcher{
 		"worker_num" => 8
 	];
 
-	private $address;
-	private $port;
+	/** @var Listener[] */
+	private $listeners = [];
 	/** @var Handler */
 	private $handler;
-	private $ssl = false;
 	private $verify = false;
 	private $uuid;
 
 	public function __construct(){
+		$this->uuid = self::generateUuid();
 	}
 
 	/**
@@ -43,11 +43,12 @@ class Launcher{
 	 *
 	 * @param string $address
 	 * @param int $port
+	 * @param bool $ssl
+	 *
 	 * @return $this
 	 */
-	public function listen(string $address, int $port){
-		$this->address = $address;
-		$this->port = $port;
+	public function listen(string $address, int $port, bool $ssl = false){
+		$this->listeners[] = new Listener($address, $port, $ssl);
 		return $this;
 	}
 
@@ -55,6 +56,7 @@ class Launcher{
 	 * Set a custom Handler
 	 *
 	 * @param Handler $handler
+	 *
 	 * @return $this
 	 */
 	public function handler(Handler $handler){
@@ -66,6 +68,7 @@ class Launcher{
 	 * Set swoole worker num
 	 *
 	 * @param int $n
+	 *
 	 * @return $this
 	 */
 	public function workers(int $n){
@@ -78,10 +81,10 @@ class Launcher{
 	 *
 	 * @param string $cert
 	 * @param string $key
+	 *
 	 * @return $this
 	 */
 	public function ssl(string $cert, string $key){
-		$this->ssl = true;
 		$this->swooleOptions["ssl_cert_file"] = $cert;
 		$this->swooleOptions["ssl_key_file"] = $key;
 		return $this;
@@ -94,11 +97,11 @@ class Launcher{
 	 *
 	 * @param bool $verify
 	 * @param string $uuid
+	 *
 	 * @return $this
 	 */
 	public function verify(bool $verify, string $uuid = null){
 		$this->verify = $verify;
-		$this->uuid = $uuid ?? self::generateUuid();
 		return $this;
 	}
 
@@ -106,6 +109,7 @@ class Launcher{
 	 * Set extra swoole options
 	 *
 	 * @param array $opts
+	 *
 	 * @return $this
 	 */
 	public function swOpts(array $opts){
@@ -113,28 +117,36 @@ class Launcher{
 		return $this;
 	}
 
+
 	/**
 	 * Build a Rpf instance
 	 *
 	 * @return Rpf
+	 * @throws \Exception
 	 */
-	public function build(): Rpf{
-		return new Rpf($this->address, $this->port, $this->handler, $this->swooleOptions,
-			$this->ssl, $this->verify, $this->uuid);
+	public function build() : Rpf{
+		if(count($this->listeners) === 0){
+			throw new \Exception("No listener.");
+		}
+		if($this->handler === null){
+			throw new \Exception("Handler not set.");
+		}
+		return new Rpf($this->listeners, $this->handler, $this->swooleOptions, $this->verify, $this->uuid);
 	}
 
 	/**
 	 * Build and launch a Rpf instance
 	 *
 	 * @return Rpf
+	 * @throws \Exception
 	 */
-	public function launch(): Rpf{
+	public function launch() : Rpf{
 		$rpf = $this->build();
 		$rpf->launch();
 		return $rpf;
 	}
 
-	public static function generateUuid(): string{
+	public static function generateUuid() : string{
 		return md5("iTXTech Rpf " . microtime(true));
 	}
 

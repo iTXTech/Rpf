@@ -20,21 +20,16 @@
  *
  */
 
-/*
- * cert.crt and private.key must exist
- */
+namespace iTXTech\Rpf;
 
-require_once "env.php";
+class Listener{
+	public $address;
+	public $port;
+	public $ssl;
 
-use iTXTech\Rpf\Launcher;
-use iTXTech\SimpleFramework\Console\Logger;
-
-Logger::info("Constructing");
-$launcher = (new Launcher())
-	->listen("127.0.0.1", 443, true)
-	->listen("127.0.0.1", 80)
-	->ssl("cert.crt", "private.key")
-	->verify(true)
-	->handler(new DefaultHandler());
-
-load($launcher);
+	public function __construct(string $address, int $port, bool $ssl){
+		$this->address = $address;
+		$this->port = $port;
+		$this->ssl = $ssl;
+	}
+}

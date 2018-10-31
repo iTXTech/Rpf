@@ -48,15 +48,17 @@ class Handler{
 	 * Modify HTTP Request before sending to upstream server
 	 * Return false to interrupt request forwarding
 	 *
+	 * @param Listener $listener
 	 * @param Request $request
 	 * @param Response $response
+	 *
 	 * @return bool
 	 */
-	public function request(Request $request, Response $response) : bool {
+	public function request(Listener $listener, Request $request, Response $response) : bool{
 		if($this->verify){
 			if(isset($request->header[strtolower(Rpf::EXTRA_HEADER)]) and
 				$request->header[strtolower(Rpf::EXTRA_HEADER)] === $this->uuid){
-				$this->invalid($request, $response, Rpf::INVALID_REQUEST_LOOP);
+				$this->invalid($listener, $request, $response, Rpf::INVALID_REQUEST_LOOP);
 				return false;
 			}
 		}
@@ -66,11 +68,12 @@ class Handler{
 	/**
 	 * Called when HTTP Request is invalid
 	 *
+	 * @param Listener $listener
 	 * @param Request $request
 	 * @param Response $response
 	 * @param int $reason
 	 */
-	public function invalid(Request $request, Response $response, int $reason){
+	public function invalid(Listener $listener, Request $request, Response $response, int $reason){
 		switch($reason){
 			case Rpf::INVALID_REQUEST_LOOP:
 				$response->header["Content-Type"] = "text/plain";
@@ -83,10 +86,12 @@ class Handler{
 	 * Resolve host to IP address
 	 * Default is to be resolved by swoole
 	 *
+	 * @param Listener $listener
 	 * @param string $host
+	 *
 	 * @return string
 	 */
-	public function resolve(string $host): string{
+	public function resolve(Listener $listener, string $host) : string{
 		return $host;
 	}
 
@@ -94,17 +99,19 @@ class Handler{
 	 * Forward HTTP Request to upstream server
 	 * Do not override this method before you know how it works
 	 *
+	 * @param Listener $listener
 	 * @param Request $request
 	 * @param Response $response
+	 *
 	 * @return string
 	 */
-	public function forward(Request $request, Response $response): string{
+	public function forward(Listener $listener, Request $request, Response $response) : string{
 		$uri = $request->server["request_uri"];
 		if(isset($request->server["query_string"])){
 			$uri .= "?" . $request->server["query_string"];
 		}
 		$headerHost = explode(":", $request->header["host"]);
-		$host = $this->resolve($headerHost[0]);
+		$host = $this->resolve($listener, $headerHost[0]);
 		$port = isset($headerHost[1]) ? $headerHost[1] : ($this->ssl ? "443" : "80");
 
 		$header = $request->header;
@@ -120,7 +127,7 @@ class Handler{
 			$client->post($uri, $request->post);
 		}
 
-		$this->response($request, $response, $client);
+		$this->response($listener, $request, $response, $client);
 
 		if($client->headers !== null){
 			unset($client->headers["content-length"],
@@ -146,20 +153,22 @@ class Handler{
 	/**
 	 * Modify HTTP Response before sending to client
 	 *
+	 * @param Listener $listener
 	 * @param Request $request
 	 * @param Response $response
 	 * @param Client $client
 	 */
-	public function response(Request $request, Response $response, Client $client){
+	public function response(Listener $listener, Request $request, Response $response, Client $client){
 	}
 
 	/**
 	 * Analyze/Record HTTP Session after it has completed
 	 *
+	 * @param Listener $listener
 	 * @param Request $request
 	 * @param Response $response
 	 * @param string $body
 	 */
-	public function complete(Request $request, Response $response, string $body){
+	public function complete(Listener $listener, Request $request, Response $response, string $body){
 	}
 }

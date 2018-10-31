@@ -29,7 +29,7 @@ Logger::info("Constructing");
 $launcher = (new Launcher())
 	->listen("127.0.0.1", 80)
 	->verify(true)
-	->handler(new class() extends DefaultHandler{
+	->handler(new class extends DefaultHandler{
 		public function init(bool $ssl, bool $verify, string $uuid){
 			parent::init($ssl, $verify, $uuid);
 			$this->ssl = true;
