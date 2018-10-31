@@ -59,38 +59,42 @@ class Rpf{
 		$swOpts = $this->swooleOptions;
 		$uuid = $this->uuid;
 		$this->proc = new Process(function(Process $process) use ($listeners, $handler, $swOpts, $uuid){
-			$mainListener = array_shift($listeners);
-			$server = new Server($mainListener->address, $mainListener->port, SWOOLE_PROCESS,
-				$mainListener->ssl ? (SWOOLE_SOCK_TCP | SWOOLE_SSL) : SWOOLE_SOCK_TCP);
-			$server->set($swOpts);
+			try{
+				$mainListener = array_shift($listeners);
+				$server = new Server($mainListener->address, $mainListener->port, SWOOLE_PROCESS,
+					$mainListener->ssl ? (SWOOLE_SOCK_TCP | SWOOLE_SSL) : SWOOLE_SOCK_TCP);
+				$server->set($swOpts);
 
-			while(($listener = array_shift($listeners)) !== null){
-				$port = $server->listen($listener->address, $listener->port,
-					$listener->ssl ? (SWOOLE_SOCK_TCP | SWOOLE_SSL) : SWOOLE_SOCK_TCP);
-				if($port === false){
-					Logger::error("iTXTech Rpf ($uuid) cannot bind to " . $listener["addr"] . ":" . $listener["port"]);
-				}else{
-					/** @var Port $port */
-					$port->on("request", function(Request $request, Response $response) use ($server, $handler, $listener){
-						if($handler->request($listener, $request, $response)){
-							$handler->complete($listener, $request, $response, $handler->forward($listener, $request, $response));
-						}
-					});
+				while(($listener = array_shift($listeners)) !== null){
+					$port = $server->listen($listener->address, $listener->port,
+						$listener->ssl ? (SWOOLE_SOCK_TCP | SWOOLE_SSL) : SWOOLE_SOCK_TCP);
+					if($port === false){
+						Logger::error("iTXTech Rpf ($uuid) cannot bind to " . $listener["addr"] . ":" . $listener["port"]);
+					}else{
+						/** @var Port $port */
+						$port->on("request", function(Request $request, Response $response) use ($server, $handler, $listener){
+							if($handler->request($listener, $request, $response)){
+								$handler->complete($listener, $request, $response, $handler->forward($listener, $request, $response));
+							}
+						});
+					}
 				}
+
+				$server->on("start", function(Server $server) use ($uuid){
+					foreach($server->ports as $port){
+						Logger::info(TextFormat::GREEN . "iTXTech Rpf ($uuid) is listening on " . $port->host . ":" . $port->port);
+					}
+				});
+				$server->on("request", function(Request $request, Response $response) use ($server, $handler, $mainListener){
+					if($handler->request($mainListener, $request, $response)){
+						$handler->complete($mainListener, $request, $response, $handler->forward($mainListener, $request, $response));
+					}
+				});
+
+				$server->start();
+			}catch(\Throwable $e){
+				Logger::logException($e);
 			}
-
-			$server->on("start", function(Server $server) use ($uuid){
-				foreach($server->ports as $port){
-					Logger::info(TextFormat::GREEN . "iTXTech Rpf ($uuid) is listening on " . $port->host . ":" . $port->port);
-				}
-			});
-			$server->on("request", function(Request $request, Response $response) use ($server, $handler, $mainListener){
-				if($handler->request($mainListener, $request, $response)){
-					$handler->complete($mainListener, $request, $response, $handler->forward($mainListener, $request, $response));
-				}
-			});
-
-			$server->start();
 		});
 		$this->proc->start();
 	}
