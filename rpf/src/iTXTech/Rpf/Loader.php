@@ -45,7 +45,7 @@ class Loader extends Module{
 		SwooleLoggerHandler::shutdown();
 	}
 
-	public static function getInstance(): ?Loader{
+	public static function getInstance() : ?Loader{
 		return self::$instance;
 	}
 
