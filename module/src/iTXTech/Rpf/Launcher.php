@@ -39,16 +39,26 @@ class Launcher{
 	}
 
 	/**
-	 * Set which address and port to listen on
+	 * Add a listener
 	 *
-	 * @param string $address
+	 * @param string|Listener|Listener[] $address
 	 * @param int $port
 	 * @param bool $ssl
 	 *
 	 * @return $this
 	 */
-	public function listen(string $address, int $port, bool $ssl = false){
-		$this->listeners[] = new Listener($address, $port, $ssl);
+	public function listen($address, int $port = 0, bool $ssl = false){
+		if(is_array($address)){
+			foreach($address as $addr){
+				if($addr instanceof Listener){
+					$this->listeners[] = $addr;
+				}
+			}
+		}elseif($address instanceof Listener){
+			$this->listeners[] = $address;
+		}else{
+			$this->listeners[] = new Listener($address, $port, $ssl);
+		}
 		return $this;
 	}
 
@@ -131,6 +141,13 @@ class Launcher{
 		if($this->handler === null){
 			throw new \Exception("Handler not set.");
 		}
+		foreach($this->listeners as $listener){
+			if($listener->ssl and
+				(!isset($this->swooleOptions["ssl_cert_file"]) or
+					!isset($this->swooleOptions["ssl_key_file"]))){
+				throw new \Exception("SSL certificate not set.");
+			}
+		}
 		return new Rpf($this->listeners, $this->handler, $this->swooleOptions, $this->verify, $this->uuid);
 	}
 
@@ -146,6 +163,11 @@ class Launcher{
 		return $rpf;
 	}
 
+	/**
+	 * Generate UUID for a Rpf instance
+	 *
+	 * @return string
+	 */
 	public static function generateUuid() : string{
 		return md5("iTXTech Rpf " . microtime(true));
 	}
