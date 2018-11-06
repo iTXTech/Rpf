@@ -112,6 +112,9 @@ class Launcher{
 	 */
 	public function verify(bool $verify, string $uuid = null){
 		$this->verify = $verify;
+		if($uuid !== null){
+			$this->uuid = $uuid;
+		}
 		return $this;
 	}
 
