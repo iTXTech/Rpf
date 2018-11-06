@@ -50,7 +50,9 @@ class Rpf{
 		$this->handler->init($this->listeners[0]->ssl, $verify, $uuid);
 		$this->swooleOptions = $swooleOptions;
 		$this->uuid = $uuid;
-		Loader::getInstance()->addInstance($this);
+		$this->accessLoaderSafely(function(Loader $loader){
+			$loader->addInstance($this);
+		});
 	}
 
 	public function launch(){
@@ -101,6 +103,14 @@ class Rpf{
 
 	public function shutdown(){
 		$this->proc->close();
-		Loader::getInstance()->removeInstance($this);
+		$this->accessLoaderSafely(function(Loader $loader){
+			$loader->removeInstance($this);
+		});
+	}
+
+	private function accessLoaderSafely(\Closure $closure){
+		if(Loader::getInstance() !== null){
+			$closure->call($this, Loader::getInstance());
+		}
 	}
 }

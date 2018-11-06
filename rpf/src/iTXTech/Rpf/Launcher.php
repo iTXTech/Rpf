@@ -171,5 +171,4 @@ class Launcher{
 	public static function generateUuid() : string{
 		return md5("iTXTech Rpf " . microtime(true));
 	}
-
 }
