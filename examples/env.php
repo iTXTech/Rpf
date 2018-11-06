@@ -35,10 +35,16 @@ Logger::info("Loading iTXTech Rpf");
 
 global $classLoader;
 try{
-	$moduleManager = new ModuleManager($classLoader, __DIR__ . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR, __DIR__ . "data");
+	$moduleManager = new ModuleManager($classLoader, __DIR__ . DIRECTORY_SEPARATOR . ".."
+		. DIRECTORY_SEPARATOR, "");//data should not be used in tests
 	$moduleManager->loadModules();
 }catch(Throwable $e){
 	Logger::logException($e);
+}
+
+if(!$moduleManager->getModule("iTXTech_Rpf")->isLoaded()){
+	Logger::error("Module not loaded.");
+	exit(1);
 }
 
 function load(Launcher $launcher){
