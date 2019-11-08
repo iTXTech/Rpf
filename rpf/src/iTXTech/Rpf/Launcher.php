@@ -4,7 +4,7 @@
  *
  * iTXTech Rpf
  *
- * Copyright (C) 2018 iTX Technologies
+ * Copyright (C) 2018-2019 iTX Technologies
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ class Launcher{
 	 *
 	 * @return $this
 	 */
-	public function listen($address, int $port = 0, bool $ssl = false){
+	public function listen($address, int $port = 0, bool $ssl = false) : Launcher{
 		if(is_array($address)){
 			foreach($address as $addr){
 				if($addr instanceof Listener){
@@ -69,7 +69,7 @@ class Launcher{
 	 *
 	 * @return $this
 	 */
-	public function handler(Handler $handler){
+	public function handler(Handler $handler) : Launcher{
 		$this->handler = $handler;
 		return $this;
 	}
@@ -81,7 +81,7 @@ class Launcher{
 	 *
 	 * @return $this
 	 */
-	public function workers(int $n){
+	public function workers(int $n) : Launcher{
 		$this->swooleOptions["worker_num"] = $n;
 		return $this;
 	}
@@ -94,7 +94,7 @@ class Launcher{
 	 *
 	 * @return $this
 	 */
-	public function ssl(string $cert, string $key){
+	public function ssl(string $cert, string $key) : Launcher{
 		$this->swooleOptions["ssl_cert_file"] = $cert;
 		$this->swooleOptions["ssl_key_file"] = $key;
 		return $this;
@@ -110,7 +110,7 @@ class Launcher{
 	 *
 	 * @return $this
 	 */
-	public function verify(bool $verify, string $uuid = null){
+	public function verify(bool $verify, string $uuid = null) : Launcher{
 		$this->verify = $verify;
 		if($uuid !== null){
 			$this->uuid = $uuid;
@@ -125,7 +125,7 @@ class Launcher{
 	 *
 	 * @return $this
 	 */
-	public function swOpts(array $opts){
+	public function swOpts(array $opts) : Launcher{
 		$this->swooleOptions = array_merge($this->swooleOptions, $opts);
 		return $this;
 	}

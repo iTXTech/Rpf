@@ -2,7 +2,7 @@
 [![License](https://img.shields.io/github/license/iTXTech/Rpf.svg)](https://github.com/iTXTech/Rpf/blob/master/LICENSE)
 [![Version](https://img.shields.io/badge/ver-1.0.0-brightgreen.svg)](https://github.com/iTXTech/Rpf/blob/master/module/info.json)
 
-An extensible Reverse Proxy Framework for [SimpleFramework 2.1](https://github.com/iTXTech/SimpleFramework) and [Swoole 4.2](https://github.com/swoole/swoole-src).
+Extensible Reverse Proxy Framework for [SimpleFramework](https://github.com/iTXTech/SimpleFramework) and [Swoole](https://github.com/swoole/swoole-src).
 
 ## Examples
 
@@ -10,7 +10,7 @@ See files in [examples](https://github.com/iTXTech/Rpf/blob/master/examples) fol
 
 ## License
 
-    Copyright (C) 2018 iTX Technologies
+    Copyright (C) 2018-2019 iTX Technologies
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
