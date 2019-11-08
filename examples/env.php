@@ -20,10 +20,11 @@
  *
  */
 
-require_once "../sf/autoload.php";
+require_once "../sfloader.php";
 
 use iTXTech\Rpf\{Handler, Launcher, Listener, Rpf};
 use iTXTech\SimpleFramework\Console\Logger;
+use iTXTech\SimpleFramework\Initializer;
 use iTXTech\SimpleFramework\Module\ModuleManager;
 use Swoole\Coroutine\Http\Client;
 use Swoole\Http\{Request, Response};

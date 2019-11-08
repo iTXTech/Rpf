@@ -5,7 +5,6 @@
   "description": "iTX Technologies Reverse Proxy Framework",
   "author": "iTX Technologies",
   "main": "iTXTech\\Rpf\\Loader",
-  "order": 0,
   "website": "https://github.com/iTXTech/Rpf",
   "extensions": [
     {

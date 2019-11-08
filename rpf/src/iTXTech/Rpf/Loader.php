@@ -32,8 +32,12 @@ class Loader extends Module{
 	/** @var Rpf[] */
 	private $instances = [];
 
-	public function load(){
+	public function preLoad() : bool{
 		self::$instance = $this;
+		return parent::preLoad();
+	}
+
+	public function load(){
 		SwooleLoggerHandler::init();
 		Logger::setLoggerHandler(SwooleLoggerHandler::class);
 	}

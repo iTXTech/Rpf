@@ -20,33 +20,27 @@
  *
  */
 
-require_once "sf/autoload.php";
+require_once "sfloader.php";
 
-use iTXTech\SimpleFramework\Console\Command\PackModuleCommand;
+use iTXTech\Rpf\Loader;
 use iTXTech\SimpleFramework\Console\Logger;
-use iTXTech\SimpleFramework\Framework;
+use iTXTech\SimpleFramework\Initializer;
 use iTXTech\SimpleFramework\Module\ModuleManager;
+use iTXTech\SimpleFramework\Module\Packer;
+use iTXTech\SimpleFramework\Util\Util;
 
 Initializer::initTerminal(true);
 
-global $classLoader;
 try{
-	$moduleManager = new ModuleManager($classLoader, __DIR__ . DIRECTORY_SEPARATOR,
+	$moduleManager = new ModuleManager(Initializer::getClassLoader(), __DIR__ . DIRECTORY_SEPARATOR,
 		__DIR__ . DIRECTORY_SEPARATOR);
 	$moduleManager->loadModules();
 }catch(Throwable $e){
 	Logger::logException($e);
 }
 
-$framework = new class($classLoader) extends Framework{
-	public function getModuleManager() : ModuleManager{
-		global $moduleManager;
-		return $moduleManager;
-	}
-};
-$pm = new PackModuleCommand();
-
-foreach($moduleManager->getModules() as $module){
-	Logger::info("Packing \"" . $module->getName() . "\" version \"" . $module->getInfo()->getVersion() . "\".");
-	$pm->execute("", [$module->getName()]);
-}
+Loader::getInstance()->pack(Packer::VARIANT_TYPICAL, "./", $file = "iTXTech_Rpf.phar");
+$phar = new Phar($file);
+$metadata = $phar->getMetadata();
+$metadata["revision"] = Util::getLatestGitCommitId("." . DIRECTORY_SEPARATOR);
+$phar->setMetadata($metadata);
