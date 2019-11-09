@@ -87,6 +87,7 @@ class DefaultHandler extends Handler{
 	}
 
 	public function response(Listener $listener, Request $request, Response $response, Client $client){
+		parent::response($listener, $request, $response, $client);
 		$client->headers["Server"] = "iTXTech Rpf";
 		$client->body .= "\n<!-- Powered by iTXTech Rpf --!>";
 	}

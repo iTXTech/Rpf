@@ -110,16 +110,18 @@ class Handler{
 		if(isset($request->server["query_string"])){
 			$uri .= "?" . $request->server["query_string"];
 		}
-		$headerHost = explode(":", $request->header["host"]);
-		$host = $this->resolve($listener, $headerHost[0]);
-		$port = isset($headerHost[1]) ? $headerHost[1] : ($this->ssl ? "443" : "80");
+		$host = $request->header["host"];
+		$ssl = $this->ssl;
+		$this->processHostAndUri($listener, $host, $uri, $ssl);
+		$headerHost = explode(":", $host);
+		$port = isset($headerHost[1]) ? $headerHost[1] : ($ssl ? "443" : "80");
 
 		$header = $request->header;
 		$header["host"] = $host . ":" . $port;
 		if($this->verify){
 			$header[Rpf::EXTRA_HEADER] = $this->uuid;
 		}
-		$client = new Client($host, $port, $this->ssl);
+		$client = new Client($this->resolve($listener, $headerHost[0]), $port, $ssl);
 		$client->setHeaders($header);
 		if($request->server["request_method"] === "GET"){
 			$client->get($uri);
@@ -170,5 +172,17 @@ class Handler{
 	 * @param string $body
 	 */
 	public function complete(Listener $listener, Request $request, Response $response, string $body){
+	}
+
+	/**
+	 *
+	 * Process Host And Uri before sending to upstream server
+	 *
+	 * @param Listener $listener
+	 * @param string $host
+	 * @param string $uri
+	 * @param bool $ssl
+	 */
+	public function processHostAndUri(Listener $listener, string &$host, string &$uri, bool &$ssl){
 	}
 }
